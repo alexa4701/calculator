@@ -6,6 +6,25 @@
 
 
 (function calculator() {
+  let input = "";
+  let finalInput = [];
+
+  // DOM selectors
+  const numButtons = Array.from(document.querySelectorAll(".number"));
+  const opButtons = Array.from(document.querySelectorAll(".operation"));
+  const equalButton = document.querySelector(".equals");
+
+  // Add event listeners to buttons
+  numButtons.forEach(button => {
+    button.addEventListener("click", number);
+  })
+
+  opButtons.forEach(button => {
+    button.addEventListener("click", operation);
+  });
+
+  equalButton.addEventListener("click", equal);
+
   function operate(num1, num2, operation) {
     let result = 0;
     let operations = {
@@ -48,31 +67,29 @@
     return result;
   }
   
-  function updateOutput(input) {
+  function updateOutput() {
     let output = document.querySelector("#result");
     output.textContent = input;
   }
   
-  function numberButton(event) {
+  function number(event) {
     if(event.target.textContent === "+/-") return;
-    input += event.target.getAttribute("id");
-    updateOutput(input);
+    if(input.match(/[\/\+\-\*]/g)) {
+      finalInput.push(input);
+      input = "";
+    }
+    input += event.target.textContent;
+    updateOutput();
   }
   
-  function operationButton() {
-  
+  function operation(event) {
+    if(!input.match(/[\/\+\-\*]/g) && input) {
+      finalInput.push(input);
+      input = event.target.textContent;
+      console.log({finalInput});
+      updateOutput();
+    }
   }
 
-  const numButtons = Array.from(document.querySelectorAll(".number"));
-  const opButtons = Array.from(document.querySelectorAll(".operations"));
-
-  let input = "";
-
-  numButtons.forEach(button => {
-    button.addEventListener("click", numberButton);
-  })
-
-  opButtons.forEach(button => {
-    button.addEventListener("click", operationButton);
-  });
+  function equal() {}
 })();
