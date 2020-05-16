@@ -1,18 +1,16 @@
-/*
-  Notes: Input should probably be stored in an array, then can perform chained operations with a loop or
-  array method.
-  
-*/
-
-
 (function calculator() {
   let input = "";
   let finalInput = [];
+  let resultFlag = false;
 
   // DOM selectors
   const numButtons = Array.from(document.querySelectorAll(".number"));
   const opButtons = Array.from(document.querySelectorAll(".operation"));
+  const decimalButton = document.querySelector(".decimal");
   const equalButton = document.querySelector(".equals");
+  const clearButton = document.querySelector(".clear");
+  const output = document.querySelector("#result");
+
 
   // Add event listeners to buttons
   numButtons.forEach(button => {
@@ -25,71 +23,133 @@
 
   equalButton.addEventListener("click", equal);
 
-  function operate(num1, num2, operation) {
-    let result = 0;
-    let operations = {
-      add: function(num1, num2) {
-        return num1 + num2;
-      },
-      subtract: function(num1, num2) {
-        return num1 - num2;
-      },
-      multiply: function(num1, num2) {
-        return num1 * num2;
-      },
-      divide: function(num1, num2) {
-        if (num2 !== 0){
-          return num1 / num2;
-        } 
-        else {
-          return "Error: Oh honey... did you just try and divide by zero? Lolll"
-        }
-      },
-    };
+  decimalButton.addEventListener("click", decimal);
 
-    switch(operation) {
-      case "+": 
-        result = operations.add(num1, num2);
-        break;
-      case "-": 
-        result = operations.subtract(num1, num2);
-        break;
-      case "*":
-        result = operations.multiply(num1, num2);
-        break;
-      case "/":
-        result = operations.divide(num1, num2);
-        break;
-      default:
-        result = "invalid operation";
-    }
+  clearButton.addEventListener("click", clear);
 
-    return result;
+  // Updates the calculator screen
+  function updateOutput(str) {
+    output.textContent = str;
   }
   
-  function updateOutput() {
-    let output = document.querySelector("#result");
-    output.textContent = input;
-  }
-  
+  // Handles number button events
   function number(event) {
-    if(event.target.textContent === "+/-") return;
+    resultFlag = false;
     if(input.match(/[\/\+\-\*]/g)) {
-      finalInput.push(input);
       input = "";
     }
     input += event.target.textContent;
-    updateOutput();
+    updateOutput(input);
+  }
+
+  // Handles decimal button events
+  function decimal(event) {
+    if(!input) {
+      input += (0 + event.target.textContent);
+      updateOutput(input);
+    }
+    else if(input.indexOf(".") === -1) {
+      input += event.target.textContent;
+      updateOutput(input);
+    }
   }
   
+  // Handles operation button events
   function operation(event) {
+    // If equal button was just pressed, use result as first value
+    if(resultFlag) {
+      resultFlag = false;
+      input = output.textContent
+    }
+    // if input is not an operation sign and not empty
     if(!input.match(/[\/\+\-\*]/g) && input) {
       finalInput.push(input);
       input = event.target.textContent;
-      console.log({finalInput});
-      updateOutput();
+      updateOutput(input);
+      finalInput.push(input);
     }
   }
 
-  function equal() {}
+  // Handles equal button events
+  function equal() {
+    if (input.match(/[\/\+\-\*]/g)) {
+      finalInput.pop();
+    }
+    else {
+      finalInput.push(output.textContent);
+    }
+    
+    let result = operate(finalInput);
+    console.log({result});
+    if(result % Math.floor(result) !== 0) {
+      result = Number(result).toFixed(2);
+    }
+    updateOutput(result);
+    finalInput = [];
+    input = "";
+    resultFlag = true;
+  }
+
+  function clear() {
+    finalInput = [];
+    input = "";
+    resultFlag = false;
+    updateOutput("0");
+  }
+
+  // Performs the operations in the finalInput array
+  function operate() {
+    let result = 0;
+    let operations = {
+      addAndSubtract: function(array) {
+        index = 0;
+        while(array.some(item => item === "+" || item === "-")) {
+          // If + or - is found, add/subtract last item and next item, replace all 3 items with result. Reset index.
+          if(array[index] === "+") {
+            result = Number(array[index - 1]) + Number(array[index + 1]);
+            array.splice(index - 1, 3, result);
+            index = 0;
+          }
+          else if(array[index] === "-") {
+            result = Number(array[index - 1]) - Number(array[index + 1]);
+            array.splice(index - 1, 3, result);
+            index = 0;
+          }
+          index++;
+        }
+        return array;
+      },
+      multiplyAndDivide: function(array) {
+        let index = 0;
+        while(array.some(item => item === "*" || item === "/")) {
+          // If * or / is found, multiply/divide last item and next item, replace all 3 items with result. Reset index.
+          if(array[index] === "*") {
+            result = Number(array[index - 1]) * Number(array[index + 1]);
+            array.splice(index - 1, 3, result);
+            index = 0;
+          }
+          if(array[index] === "/") {
+            if(array[index + 1] == 0) {
+              result = "Error, divide by zero";
+            }
+            else {
+              result = Number(array[index - 1]) / Number(array[index + 1]);
+            }
+            array.splice(index - 1, 3, result);
+            index = 0;
+          }
+          // If not found, next item.
+          index++;
+        }
+        return array;
+      },
+    };
+
+    console.log(finalInput);
+    // PEMDAS
+    finalInput = operations.multiplyAndDivide(finalInput);
+    finalInput = operations.addAndSubtract(finalInput);
+
+    return finalInput.pop();
+  }
 })();
