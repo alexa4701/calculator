@@ -9,6 +9,7 @@
   const decimalButton = document.querySelector(".decimal");
   const equalButton = document.querySelector(".equals");
   const clearButton = document.querySelector(".clear");
+  const backButton = document.querySelector(".back");
   const output = document.querySelector("#result");
 
 
@@ -26,6 +27,8 @@
   decimalButton.addEventListener("click", decimal);
 
   clearButton.addEventListener("click", clear);
+
+  backButton.addEventListener("click", back);
 
   // Updates the calculator screen
   function updateOutput(str) {
@@ -80,7 +83,7 @@
     }
     
     let result = operate(finalInput);
-    console.log({result});
+
     if(result % Math.floor(result) !== 0) {
       result = Number(result).toFixed(2);
     }
@@ -88,6 +91,11 @@
     finalInput = [];
     input = "";
     resultFlag = true;
+  }
+
+  function back() {
+    input = input.substring(0,input.length - 1);
+    updateOutput(input);
   }
 
   function clear() {
@@ -145,7 +153,6 @@
       },
     };
 
-    console.log(finalInput);
     // PEMDAS
     finalInput = operations.multiplyAndDivide(finalInput);
     finalInput = operations.addAndSubtract(finalInput);

@@ -25,7 +25,6 @@ html, body {
   row-gap: 10px;
   width: 200px;
   padding: 25px;
-  /*background-color: #ebedeb;*/
   background: linear-gradient(150deg, rgba(235,237,235,1) 0%, rgba(160,167,161,0.9920343137254902) 62%, rgba(235,237,235,1) 100%);  border: 2px solid;
   color: #3d483f;
 }
@@ -56,9 +55,14 @@ html, body {
   display: grid;
   grid-template-columns: 80% 20%;
   width: 100%;
+  column-gap: 10px;
 }
 
 .clear {
+  background-color: #DD0059;
+}
+
+.back {
   background-color: #DD0059;
 }
 
