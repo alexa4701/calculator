@@ -23,10 +23,11 @@ html, body {
   justify-items: center;
   justify-self: center;
   row-gap: 10px;
-  width: 200px;
+  width: 300px;
   padding: 25px;
   background: linear-gradient(150deg, rgba(235,237,235,1) 0%, rgba(160,167,161,0.9920343137254902) 62%, rgba(235,237,235,1) 100%);  border: 2px solid;
   color: #3d483f;
+  box-shadow: 10px 10px 11px 0px rgba(0,0,0,0.2);
 }
 
 .output {
@@ -39,6 +40,7 @@ html, body {
   font-size: 22pt;
   font-weight: 700;
   padding-right: 5px;
+  margin-left: 5px;
   border: 1px solid #3d483f;
   background-color: #ebedeb;
 }
@@ -49,6 +51,11 @@ html, body {
   justify-items: center;
   align-items: center;
   border: 1px solid #3d483f;
+  user-select: none;
+}
+
+.button:hover {
+  transform: scale(1.05);
 }
 
 .buttons-top {

@@ -2,6 +2,7 @@
   let input = "";
   let finalInput = [];
   let resultFlag = false;
+  let zeroFlag = false;
 
   // DOM selectors
   const numButtons = Array.from(document.querySelectorAll(".number"));
@@ -32,6 +33,10 @@
 
   // Updates the calculator screen
   function updateOutput(str) {
+    if(str.length > 18){
+      str = "Error, too long :(";
+      resultFlag = false;
+    }
     output.textContent = str;
   }
   
@@ -41,8 +46,10 @@
     if(input.match(/[\/\+\-\*]/g)) {
       input = "";
     }
-    input += event.target.textContent;
-    updateOutput(input);
+    if(input.length <= 18){
+      input += event.target.textContent;
+      updateOutput(input);
+    }
   }
 
   // Handles decimal button events
@@ -65,7 +72,7 @@
       input = output.textContent
     }
     // if input is not an operation sign and not empty
-    if(!input.match(/[\/\+\-\*]/g) && input) {
+    if(input.match(/[\d]/g) && input) {
       finalInput.push(input);
       input = event.target.textContent;
       updateOutput(input);
@@ -84,20 +91,29 @@
     
     let result = operate(finalInput);
 
+    // If result is a float, round to 2 places
     if(result % Math.floor(result) !== 0) {
       result = Number(result).toFixed(2);
     }
-    updateOutput(result);
+    resultFlag = true;
     finalInput = [];
     input = "";
-    resultFlag = true;
+    if(zeroFlag) {
+      updateOutput("Divided by zero :/");
+      zeroFlag = false;
+    }
+    else {
+      updateOutput(result.toString());
+    }
   }
 
+  // Handles <- button events
   function back() {
     input = input.substring(0,input.length - 1);
     updateOutput(input);
   }
 
+  // Handles C button events
   function clear() {
     finalInput = [];
     input = "";
@@ -109,6 +125,7 @@
   function operate() {
     let result = 0;
     let operations = {
+      // Performs the adding and subtracting parts of the array.
       addAndSubtract: function(array) {
         index = 0;
         while(array.some(item => item === "+" || item === "-")) {
@@ -127,6 +144,7 @@
         }
         return array;
       },
+      // Performs the multiplying and dividing parts of the array.
       multiplyAndDivide: function(array) {
         let index = 0;
         while(array.some(item => item === "*" || item === "/")) {
@@ -138,7 +156,8 @@
           }
           if(array[index] === "/") {
             if(array[index + 1] == 0) {
-              result = "Error, divide by zero";
+              result = 0;
+              zeroFlag = true;
             }
             else {
               result = Number(array[index - 1]) / Number(array[index + 1]);
@@ -146,14 +165,12 @@
             array.splice(index - 1, 3, result);
             index = 0;
           }
-          // If not found, next item.
           index++;
         }
         return array;
       },
     };
 
-    // PEMDAS
     finalInput = operations.multiplyAndDivide(finalInput);
     finalInput = operations.addAndSubtract(finalInput);
 
